@@ -20,7 +20,7 @@ ServerConfig = {
 
     limits = {
         maxItemsPerJob = 250,
-        maxMaterials = 10,
+        maxMaterials = 1,
         -- ng-itemcreator互換: 1素材につき投入できるのは1個だけです。
         maxMaterialCount = 1,
         maxWeight = 100000,
@@ -101,10 +101,11 @@ ServerConfig = {
        -- rolling_paper   = { label = 'ローリングペーパー',  points = 10,  weight = 20,  icon = '🌿', categories = { smoke = true  } },
 
         -- pumpkin        = { label = 'かぼちゃ',           points = 20, weight = 25,  icon = '🎃', categories = { food = true, smoke = true } },
-        -- melon2         = { label = 'メロン',             points = 20, weight = 25,  icon = '🍈', categories = { food = true, drink = true, alcohol = true } },
+        -- watermelon     = { label = 'スイカ',             points = 20, weight = 25,  icon = '🍈', categories = { drink = true, alcohol = true } },
+        -- melon2         = { label = 'メロン',             points = 20, weight = 25,  icon = '🍈', categories = { drink = true, alcohol = true } },
         -- wheat          = { label = '小麦',               points = 23, weight = 25,  icon = '🌾', categories = { food = true, smoke = true } },
-        -- milkbottle     = { label = '生乳',               points = 20, weight = 23,  icon = '🥛', categories = { drink = true, alcohol = true } },
-        -- raw_pork       = { label = '生肉',               points = 25, weight = 30,  icon = '🍖', categories = { food = true } },
+        -- raw_pork       = { label = '生肉',               points = 20, weight = 30,  icon = '🍖', categories = { food = true } },
+        -- milkbottle     = { label = '生乳',               points = 25, weight = 23,  icon = '🥛', categories = { drink = true, alcohol = true } },
         -- chicken_leg    = { label = '加工済みの鶏肉',      points = 25, weight = 25,  icon = '🍗', categories = { food = true } },
         -- meat           = { label = '牛肉',               points = 25, weight = 25,  icon = '🍖', categories = { food = true } },
         -- aquiver_milk   = { label = '新鮮な牛乳',         points = 30, weight = 50,  icon = '🥛', categories = { drink = true, alcohol = true } },
