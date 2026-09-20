@@ -117,6 +117,10 @@ local function validateMaterials(rawMaterials, oxItems, category)
     }
 end
 
+function LCItemValidation.GetAlcoholBaseLevel()
+    return number(ServerConfig.materialPoints.alcoholBaseLevel, 0, ServerConfig.limits.maxAlcoholLevel, 1.0)
+end
+
 local function calculateStatusPoints(consumable)
     local pointConfig = ServerConfig.materialPoints
     local costs = pointConfig.statusCosts
@@ -128,7 +132,7 @@ local function calculateStatusPoints(consumable)
     end
 
     if consumable.category == 'alcohol' then
-        total = total + (tonumber(consumable.alcoholLevel) or 0)
+        total = total + math.abs((tonumber(consumable.alcoholLevel) or 0) - LCItemValidation.GetAlcoholBaseLevel())
             * math.max(tonumber(pointConfig.alcoholMultiplier) or 0, 0)
     end
 
@@ -281,7 +285,7 @@ local function validateConsumable(raw, oxItems)
             raw.alcoholLevel,
             0,
             ServerConfig.limits.maxAlcoholLevel,
-            1.0
+            LCItemValidation.GetAlcoholBaseLevel()
         ) or 0,
         canOverdose = category == 'alcohol' and raw.canOverdose == true or false,
     }

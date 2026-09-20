@@ -122,7 +122,9 @@ ensure LC_itemcreator
 
 `config/server.lua`の`materials`で、素材ごとの表示名・素材P・重量・アイコンを設定できます。ng-itemcreatorと同様に、同じ素材は1種類につき1個だけ投入できます。消費アイテムの完成重量は選択素材の重量合計から自動計算され、使用Pが素材Pを超える定義はサーバー側で保存を拒否します。
 
-使用PはHunger / Thirst / Stressの絶対値を合算します。アルコール商品では、これに`alcoholLevel × alcoholMultiplier`を加算します。既定値では`alcoholLevel = 0.25`が5Pです。換算率や各ステータスの消費率は`materialPoints`から変更できます。体力・アーマー効果と使用後返却アイテムは、飲食店ジョブ向けUIから登録できません。
+使用PはHunger / Thirst / Stressの絶対値に設定倍率を掛けて合算します。アルコール商品では、これに`abs(alcoholLevel - alcoholBaseLevel) × alcoholMultiplier`を加算します。`materialPoints`の既定値は基準`alcoholBaseLevel = 1.0`、倍率`alcoholMultiplier = 20`です。1.0は0P、0.25は15P、2.0は20Pとなり、基準より下げる場合もポイントを使用します。操作回数ではなく最終値と基準との差で計算します。体力・アーマー効果と使用後返却アイテムは、飲食店ジョブ向けUIから登録できません。
+
+新規作成でアルコールカテゴリーを選ぶと基準値が初期入力されます。既存商品の保存値は自動変更しませんが、編集時は新しい計算式を適用するため、素材P不足になる場合は保存前に素材または効果を調整してください。更新時は本リソースのサーバー・UIとLC_businessのweb/distを同時に更新し、LC_itemcreator → LC_businessの順で再起動してください。DB移行とLC_consumablesの変更は不要です。
 
 どちらのフレームワークでも`ox_inventory/data/items.lua`をアイテム定義の正本にします。作成直後のアイテムを`QBCore.Shared.Items`から検索する旧QBリソースには即時同期されないため、新規のクラフト・消費処理はox_inventory exportを使用してください。
 

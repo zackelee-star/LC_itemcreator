@@ -42,7 +42,7 @@ function applyCategory(category) {
     fields.alcoholLevel.value = '0';
     fields.canOverdose.checked = false;
   } else if (category !== currentCategory) {
-    fields.alcoholLevel.value = String(Math.max(0.25, numericField('alcoholLevel')));
+    fields.alcoholLevel.value = String(bootstrap?.options?.alcoholBaseLevel ?? 1);
   }
   const sameCategory = category === currentCategory;
   fields.category.value = category;
@@ -239,7 +239,8 @@ function getMetrics() {
     });
 
     if (fields.category.value === 'alcohol') {
-      usedPoints += numericField('alcoholLevel') * Math.max(Number(bootstrap?.options?.alcoholPointMultiplier || 0), 0);
+      usedPoints += Math.abs(numericField('alcoholLevel') - Number(bootstrap?.options?.alcoholBaseLevel ?? 1))
+        * Math.max(Number(bootstrap?.options?.alcoholPointMultiplier || 0), 0);
     }
   }
 
@@ -254,6 +255,10 @@ function updateRangeOutputs() {
     fields[`${status}Value`].textContent = formatNumber(numericField(status));
   });
   fields.alcoholLevelValue.textContent = formatNumber(numericField('alcoholLevel'));
+  const base = Number(bootstrap?.options?.alcoholBaseLevel ?? 1);
+  const multiplier = Math.max(Number(bootstrap?.options?.alcoholPointMultiplier || 0), 0);
+  const alcoholPoints = Math.round(Math.abs(numericField('alcoholLevel') - base) * multiplier * 100) / 100;
+  fields.alcoholPointHint.textContent = `基準 ${formatNumber(base)} = 0P ／ 基準からの増減1.0につき${formatNumber(multiplier)}P ／ アルコール使用P ${formatNumber(alcoholPoints)}`;
 }
 
 function updateSummary() {
@@ -420,7 +425,7 @@ function setEditorState(item) {
   updatePresentationOptions(consumable.presentation || 'eat', consumable.prop);
   fields.effectPreset.value = consumable.effectPreset || 'none';
   fields.effectDuration.value = consumable.effectDuration || 0;
-  fields.alcoholLevel.value = consumable.alcoholLevel ?? (currentCategory === 'alcohol' ? 0.25 : 0);
+  fields.alcoholLevel.value = consumable.alcoholLevel ?? (currentCategory === 'alcohol' ? (bootstrap?.options?.alcoholBaseLevel ?? 1) : 0);
   fields.canOverdose.checked = consumable.canOverdose === true;
   fields.hunger.value = consumable.effects?.hunger || 0;
   fields.thirst.value = consumable.effects?.thirst || 0;

@@ -255,6 +255,7 @@ local function bootstrap(source)
             statusPointCosts = ServerConfig.materialPoints.statusCosts,
             statusEditing = LCItemValidation.GetStatusEditing(),
             alcoholPointMultiplier = ServerConfig.materialPoints.alcoholMultiplier,
+            alcoholBaseLevel = LCItemValidation.GetAlcoholBaseLevel(),
             enforceMaterialBudget = ServerConfig.materialPoints.enforceBudget,
             autoWeightForUsable = ServerConfig.materialPoints.autoWeightForUsable,
             expirationOptions = expirationOptions,
