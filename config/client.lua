@@ -1,0 +1,3 @@
+ClientConfig = {
+    notifyPosition = 'top',
+}

@@ -1,0 +1,23 @@
+# Installed dependencies and local build caches
+node_modules/
+node_modules.*/
+.pnpm-store/
+.vite/
+*.tsbuildinfo
+
+# Local settings, credentials and temporary files
+.env
+.env.*
+!.env.example
+*.log
+*.tmp
+*.bak
+*.pem
+*.key
+.tmp/
+.codex/
+.codex-backups/
+.DS_Store
+Thumbs.db
+
+# Source files, lockfiles, build configuration and web/dist are tracked.

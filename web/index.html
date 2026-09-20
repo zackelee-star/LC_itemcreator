@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LC Item Creator</title>
+  <style>
+    html,
+    body {
+      background: rgba(0, 0, 0, 0) !important;
+    }
+
+    #root[data-visible="false"] {
+      display: none !important;
+      pointer-events: none !important;
+      background: rgba(0, 0, 0, 0) !important;
+    }
+  </style>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body style="background: rgba(0, 0, 0, 0) !important">
+  <main id="root" data-visible="false" aria-hidden="true">
+    <section class="shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">LOUGHCITY MANAGEMENT</p>
+          <h1>Item Creator</h1>
+        </div>
+        <div class="top-actions">
+          <span id="jobBadge" class="badge"></span>
+          <button id="refreshButton" class="button ghost" type="button">再読込</button>
+          <button id="closeButton" class="button danger" type="button">閉じる</button>
+        </div>
+      </header>
+
+      <div id="integration" class="integration"></div>
+
+      <div class="workspace">
+        <aside class="catalogue">
+          <div class="catalogue-head">
+            <div>
+              <h2>登録アイテム</h2>
+              <p id="itemCount">0件</p>
+            </div>
+            <button id="newButton" class="button primary" type="button">新規作成</button>
+          </div>
+          <input id="search" class="input" type="search" placeholder="名前・表示名で検索">
+          <div id="itemList" class="item-list"></div>
+        </aside>
+
+        <section class="editor">
+          <div class="editor-head">
+            <div>
+              <p class="eyebrow" id="modeLabel">NEW ITEM</p>
+              <h2 id="editorTitle">新しいアイテム</h2>
+            </div>
+            <div class="editor-meta">
+              <div id="pointsSummary" class="points-summary" aria-live="polite">
+                <span>素材P:<strong id="materialPoints">0</strong></span>
+                <span>使用P:<strong id="usedPoints">0</strong></span>
+                <span>残り:<strong id="remainingPoints">0</strong></span>
+                <span>重量:<strong id="materialWeight">0g</strong></span>
+              </div>
+              <span id="stateBadge" class="badge success">有効</span>
+            </div>
+          </div>
+
+          <form id="itemForm" autocomplete="off">
+            <input id="revision" type="hidden" value="">
+
+            <fieldset>
+              <legend>基本情報</legend>
+              <div class="grid cols-3">
+                <label>管理ジョブ
+                  <input id="ownerJob" class="input mono" readonly>
+                </label>
+                <label>アイテム名
+                  <span class="item-name-input">
+                    <span id="namePrefix" class="item-prefix mono"></span>
+                    <input id="nameSuffix" class="item-suffix mono" maxlength="48" pattern="[a-z0-9]+" required placeholder="specialburger" spellcheck="false">
+                  </span>
+                  <small id="nameError" class="input-error hidden">アイテム名には半角英数字のみ使用できます。</small>
+                  <input id="name" type="hidden">
+                </label>
+                <label>表示名
+                  <input id="label" class="input" maxlength="80" required placeholder="スペシャルバーガー">
+                </label>
+                <label>タイプ
+                  <select id="type" class="input"></select>
+                </label>
+                <label><span id="weightLabel">重量（g）</span>
+                  <input id="weight" class="input" type="number" min="0" max="100000" value="100">
+                </label>
+                <label>画像URL / ファイル名
+                  <input id="image" class="input" maxlength="300" placeholder="https://gazou1.dlup.by/...png">
+                </label>
+              </div>
+              <label>説明文
+                <textarea id="description" class="input" maxlength="500" rows="2"></textarea>
+              </label>
+              <div class="switches">
+                <label><input id="stack" type="checkbox" checked> スタック可能</label>
+                <label><input id="close" type="checkbox" checked> 使用時に閉じる</label>
+                <label><input id="decay" type="checkbox"> 期限切れ時に自動削除</label>
+                <label>賞味期限
+                  <select id="degradeMinutes" class="input compact" required></select>
+                </label>
+              </div>
+              <p class="hint expiration-hint">自動削除をOFFにしても賞味期限は有効です。期限切れ後はアイテムが残りますが、使用できません。無期限にする場合は「賞味期限なし」を選択してください。</p>
+            </fieldset>
+
+            <fieldset id="consumableFields">
+              <legend>消費効果</legend>
+              <div id="categoryWarning" class="integration error hidden" role="alert">
+                このカテゴリーで許可されていない素材・効果が残っています。確認して解除するまで保存できません。
+                <button id="reviewCategoryButton" type="button" class="button ghost">解除する設定を確認</button>
+              </div>
+              <div class="grid cols-3">
+                <label>カテゴリー<select id="category" class="input"></select></label>
+                <label>アニメーション<select id="presentation" class="input"></select></label>
+                <label>使用するProp<select id="prop" class="input"></select></label>
+              </div>
+              <div class="grid cols-2 effect-options">
+                <label>画面効果<select id="effectPreset" class="input"></select></label>
+                <label>効果時間（ms）<input id="effectDuration" class="input" type="number" min="0" max="120000" value="0"></label>
+              </div>
+              <h3 class="section-title">ステータス設定</h3>
+              <div class="status-sliders">
+                <label class="status-slider"><span>空腹 (-100 ～ 100)<output id="hungerValue">0</output></span><input id="hunger" type="range" min="-100" max="100" step="1" value="0"></label>
+                <label class="status-slider"><span>喉の渇き (-100 ～ 100)<output id="thirstValue">0</output></span><input id="thirst" type="range" min="-100" max="100" step="1" value="0"></label>
+                <label class="status-slider"><span>ストレス (-100 ～ 100)<output id="stressValue">0</output></span><input id="stress" type="range" min="-100" max="100" step="1" value="0"></label>
+              </div>
+              <div id="alcoholFields" class="alcohol-panel hidden">
+                <div class="grid cols-2 alcohol-grid">
+                  <label class="status-slider">アルコール加算値 <output id="alcoholLevelValue">1</output>
+                    <input id="alcoholLevel" type="range" min="0" max="5" step="0.05" value="1">
+                  </label>
+                  <label class="checkbox-line">
+                    <input id="canOverdose" type="checkbox">
+                    過剰摂取ダメージを有効にする
+                  </label>
+                </div>
+                <p class="hint">参考: qbx_consumablesのビールは0.25です。値は飲むたびに蓄積し、死亡・ラストスタンド・ログアウト時にリセットされます。</p>
+              </div>
+            </fieldset>
+
+            <fieldset id="recipeFields">
+              <legend>素材選択</legend>
+              <div class="material-help">
+                <p id="materialLimitText" class="hint">素材を選択してください。</p>
+                <p id="pointMessage" class="point-message"></p>
+              </div>
+              <div class="material-tools">
+                <input id="materialSearch" class="input" type="search" placeholder="素材名で検索">
+                <select id="materialSort" class="input">
+                  <option value="default">並び替え: デフォルト</option>
+                  <option value="name">名前順</option>
+                  <option value="points">素材Pが高い順</option>
+                  <option value="weight">重量が軽い順</option>
+                </select>
+                <label class="selected-only"><input id="selectedOnly" type="checkbox"> 選択中のみ</label>
+              </div>
+              <div id="materialGrid" class="material-grid"></div>
+              <div id="materialEmpty" class="empty hidden">条件に一致する素材はありません</div>
+              <div class="material-summary">
+                素材P <strong id="materialPointsInline">0</strong> /
+                使用P <strong id="usedPointsInline">0</strong> /
+                残り <strong id="remainingPointsInline">0</strong> |
+                重量 <strong id="materialWeightInline">0g</strong>
+              </div>
+            </fieldset>
+
+            <footer class="form-actions">
+              <button id="deleteButton" class="button danger hidden" type="button">アイテムを削除</button>
+              <button id="resetButton" class="button ghost" type="button">入力をリセット</button>
+              <button id="toggleButton" class="button warning hidden" type="button">無効化</button>
+              <button id="saveButton" class="button primary" type="submit">保存して即時反映</button>
+            </footer>
+          </form>
+        </section>
+      </div>
+    </section>
+
+    <section id="categoryModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="categoryModalTitle">
+      <div class="modal-card">
+        <h2 id="categoryModalTitle">カテゴリーの設定を変更しますか？</h2>
+        <p class="modal-message">「<span id="categoryModalTarget"></span>」では以下の設定が使えないため、編集中の内容から解除します。</p>
+        <ul id="categoryChanges" class="modal-message"></ul>
+        <p class="modal-message">登録済みの商品は「保存して即時反映」を押すまで変更されません。</p>
+        <div class="modal-actions">
+          <button id="cancelCategoryButton" class="button ghost" type="button">キャンセル</button>
+          <button id="confirmCategoryButton" class="button primary" type="button">解除して適用</button>
+        </div>
+      </div>
+    </section>
+    <section id="deleteModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="deleteModalTitle">
+      <div class="modal-card">
+        <p class="eyebrow">DELETE ITEM</p>
+        <h2 id="deleteModalTitle">アイテムを削除しますか？</h2>
+        <p class="modal-message"><strong id="deleteItemName"></strong>を完全に削除します。所持中の同名アイテムは未定義になるため、削除前に回収してください。</p>
+        <div class="modal-actions">
+          <button id="cancelDeleteButton" class="button ghost" type="button">キャンセル</button>
+          <button id="confirmDeleteButton" class="button danger" type="button">完全に削除</button>
+        </div>
+      </div>
+    </section>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
